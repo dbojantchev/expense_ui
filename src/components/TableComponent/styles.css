@@ -1,0 +1,13 @@
+.rowAndButton{
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    left: 50%;
+    width:50%;
+    height: 50%;
+}
+
+.deleteButton{
+    position: relative;
+    padding-left: 300 px;
+}

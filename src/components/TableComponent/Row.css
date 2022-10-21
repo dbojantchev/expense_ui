@@ -1,0 +1,14 @@
+.row{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 5px;
+    width: 40%;
+}
+
+.cell{
+    width: 200px;
+    border-left: solid 1px black;
+    border-right: solid 1px black;
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+}

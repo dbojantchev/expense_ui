@@ -1,0 +1,10 @@
+.error{
+    color: red;
+    font-style: italic;
+    font-size: 22px;
+}
+
+.input-group{
+    background-color: grey;
+    border-radius: 7px;
+}

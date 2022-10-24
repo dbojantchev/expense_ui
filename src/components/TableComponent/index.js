@@ -3,42 +3,44 @@ import './styles.css';
 import InputComponent from './InputComponent'
 import Row from './Row'
 
-
-
 function TableComponent() {
 
-    const expenses = [
-        {
-            id: 0,
-            name: "test1",
-            amount: 340,
-            date: '2022-10-05'
-        },
-        {
-            id: 1,
-            name: "test23",
-            amount: 1144,
-            date: '2022-10-04'
-        }
-    ]
+    const [expenses, setExpenses] = useState([])
+
+    useEffect(() => {
+        fetch(
+            '/api/expense?q=proxy',
+            {headers: {
+                    'Content-Type': 'application/json'
+                }}
+        )
+            .then(resp => {
+                resp.json().then((data) => {
+                    console.log(JSON.stringify(data))
+                    setExpenses(data);
+                });
+            })
+            .catch(err => {
+                console.log('======failure=======');
+                console.log(err);
+            });
+    }, [])
 
     const addExpense = (rec) => {
-        const newExpenseList = [...expenseList]
+        const newExpenseList = [...expenses]
         newExpenseList.push(rec)
-        setExpenseList(newExpenseList)
+        setExpenses(newExpenseList)
     }
 
     const deleteRow = (index) => {
-        const newExpenseList = expenseList.filter((_, i) => i !== index);
-        setExpenseList(newExpenseList)
+        const newExpenseList = expenses.filter((_, i) => i !== index);
+        setExpenses(newExpenseList)
     }
-
-    const [expenseList, setExpenseList] = useState(expenses)
 
     return (
         <>
            <InputComponent addExpense={addExpense}/>
-            {expenseList.map((ex, index) =>
+            {expenses.map((ex, index) =>
                 <div className={"rowAndButton"}>
                     <Row
                          id={ex.id}

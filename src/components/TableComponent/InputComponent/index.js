@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import './styles.css';
 
-
 function InputComponent({addExpense}) {
     const [name, setName] = useState("")
     const [amount, setAmount] = useState(0)
     const [date, setDate] = useState("")
     const [errorMessage, setErrorMessage] = useState('')
 
-   useEffect(() => {
+
+    useEffect(() => {
        console.log("Checking name:");
 
        (typeof amount !== 'number' || amount < 0) ?
@@ -38,7 +38,7 @@ function InputComponent({addExpense}) {
                 <input type="text" value={name}
                        onChange={(e) => setName(e.target.value)}/>
                <span className={"column-name"}>Amount:</span>
-                <input type="text" id="amount" value={amount}
+                <input type="number" id="amount" value={amount}
                        onChange={(e) => setAmount(e.target.value)}/>
                <span className={"column-name"}>Date:</span>
                 <input type="date" id="date" value="add" value={date}

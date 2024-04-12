@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Form, InputNumber, Input, Button, Table} from 'antd';
 import './styles.css';
 import InputComponent from './InputComponent'
 import Row from './Row/index'
@@ -6,6 +7,61 @@ import Row from './Row/index'
 function TableComponent() {
     //initial expense array of  objects is empty, denoted by []
     const [expenses, setExpenses] = useState([])
+    const [hasChanged, setHasChanged] = useState(false); //need a state for each id
+    const [editingKey, setEditingKey] = useState('');
+    const isEditing = (record) => record.key === editingKey;
+
+    const columns = [{
+        title: 'id',
+        dataIndex: 'id',
+        key: 'id',
+    }, {
+        title: 'name',
+        dataIndex: 'id',
+        key: 'name',
+        editable: true,
+    }, {
+        title: 'amount',
+        dataIndex: 'id',
+        key: 'amount',
+        render: (amountState) => (<Input  name="amount"
+                value={amountState}
+                type="number"
+                onChange={(e) => {
+                    setHasChanged(true);
+                    setAmount(e.target.value);
+                }}
+                placeholder="Type amount"/>
+        )},{
+        title: 'date',
+        dataIndex: 'id',
+        key: 'date',
+        render: (dateState) =>(<Input  name="date"
+                    value={dateState}
+                    type="date"
+                    onChange={(e) => {
+                        setHasChanged(true);
+                        setDate(e.target.value);
+                    }}/>
+        )},{
+        title: 'action',
+        dataIndex: 'id',
+        key: 'action',
+        render: (id, nameState, amountState, dateState ) => (
+            <div>
+                <Button className={"editButton"}
+                        disabled={!hasChanged}
+                        onClick={()=> editRow(id, nameState, amountState, dateState)}>
+                    Edit
+                </Button>
+                <Button className={"deleteButton"}
+                        onClick={()=> deleteRow(id)}>
+                    Delete
+                </Button>
+            </div>
+        )
+    },
+    ];
 
     const getExpenses = () => {
         fetch(
@@ -19,6 +75,9 @@ function TableComponent() {
         .then(resp => {
             resp.json().then((data) => {
                 sortExpenses(data);
+                data.forEach((entry) => {
+                    entry.create_date = new Date(entry.create_date).toISOString().slice(0, 10);
+                });
                 setExpenses(data);
             });
         })
@@ -61,6 +120,7 @@ function TableComponent() {
     };
 
     const deleteRow = async (id) => {
+        console.log(`id for delete request ${id}`)
         await fetch(`/api/expense/${id}`, { method: 'DELETE' });
         getExpenses();
     }
@@ -82,6 +142,10 @@ function TableComponent() {
             });
     }
 
+    const returnExpenseIndex = (id) => {
+        const index = expenses.findIndex((ex) => ex.id === id);
+        return index;
+    }
     const sortExpenses = (data) => {
         data.sort((a, b) => {
             a = parseInt(a.id);
@@ -98,8 +162,8 @@ function TableComponent() {
     }
 
     const editRow = (id, newName, newAmount, newDate) => {
-
-        const index = expenses.findIndex((ex) => ex.id === id);
+        const index = returnExpenseIndex(id);
+        //const index = expenses.findIndex((ex) => ex.id === id);
         console.log(`index for of array ${index}`)
         console.log(`id for put request ${id}`)
         const rowAttributes  = {"id": id , "name": newName, "amount": newAmount, "date": newDate};
@@ -129,17 +193,21 @@ function TableComponent() {
     return (
         <>
            <InputComponent addExpense={addExpense}/>
+            <Table className= "antDTable" dataSource={expenses}
+                   columns={columns}
+                   bordered
+                   rowKey="id"/>
             {expenses.map((ex, index) =>
-                <Row
-                     id={ex.id}
-                     name={ex.name}
-                     amount={ex.amount}
-                     date={ex.create_date}
-                     //editEnterKeyPress={editEnterKeyPress}
-                     handleEdit={editRow}
-                     handleDelete={deleteRow}
-                />
-            )}
+            <Row
+                id={ex.id}
+                name={ex.name}
+                amount={ex.amount}
+                date={ex.create_date}
+                //editEnterKeyPress={editEnterKeyPress}
+                handleEdit={editRow}
+                handleDelete={deleteRow}
+            />
+        )}
         </>
     );
 }

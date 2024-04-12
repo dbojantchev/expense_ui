@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import './styles.css';
+import { Button, Input } from 'antd';
 
 function Index({id, name, amount, date, handleEdit, handleDelete}) {
     const [nameState, setName] = useState(name);
@@ -10,7 +11,7 @@ function Index({id, name, amount, date, handleEdit, handleDelete}) {
     return (
         <div className={"row"}>
             <div className={"cell"} >{id}</div>
-            <div className={"cell"} > <input  name="name"
+            <div className={"cell"} > <Input  name="name"
                                               value={nameState}
                                               type="text"
                                               onChange={(e) => {
@@ -19,7 +20,7 @@ function Index({id, name, amount, date, handleEdit, handleDelete}) {
                                               }}
                                               placeholder="Type name"/>
             </div>
-            <div className={"cell"} > <input  name="amount"
+            <div className={"cell"} > <Input  name="amount"
                                               value={amountState}
                                               type="number"
                                               onChange={(e) => {
@@ -28,7 +29,7 @@ function Index({id, name, amount, date, handleEdit, handleDelete}) {
                                               }}
                                               placeholder="Type amount"/>
             </div>
-            <div className={"cell"} > <input  name="date"
+            <div className={"cell"} > <Input  name="date"
                                               value={dateState}
                                               type="date"
                                               onChange={(e) => {
@@ -38,12 +39,12 @@ function Index({id, name, amount, date, handleEdit, handleDelete}) {
             />
             </div>
 
-            <button className={"editButton"}
+            <Button className={"editButton"}
                     disabled={!hasChanged}
-                    onClick={() => {handleEdit(id, nameState, amountState, dateState)}}>Edit</button>
+                    onClick={() => {handleEdit(id, nameState, amountState, dateState)}}>Edit</Button>
 
-            <button className={"deleteButton"}
-                    onClick={() => {handleDelete(id)}}>Delete</button>
+            <Button className={"deleteButton"}
+                    onClick={() => {handleDelete(id)}}>Delete</Button>
         </div>
     );
 }

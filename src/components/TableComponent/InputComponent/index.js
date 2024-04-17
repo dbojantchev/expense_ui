@@ -7,9 +7,8 @@ function InputComponent({addExpense}) {
     const [date, setDate] = useState("")
     const [errorMessage, setErrorMessage] = useState('')
 
-
     useEffect(() => {
-       console.log("Checking name:");
+       //console.log("Checking name:");
 
        (typeof amount !== 'number' || amount < 0) ?
             setErrorMessage('Please enter a positive number for amount!')
@@ -23,7 +22,6 @@ function InputComponent({addExpense}) {
         (typeof amount !== 'number' || amount < 0) ?
             setErrorMessage('Please enter a positive number for amount!')
             : setAmount(amount)
-
     }
 
     const checkEmpty = (name) => {

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import {Input, AutoComplete} from 'antd';
+import {Input, AutoComplete, Dropdown} from 'antd';
 import './styles.css';
 
 function SearchComponent({searchEntry, suggestions, getExpenses}) {
-    const [searchName, setSearchName] = useState('');
+    const [searchName, setSearchName] = useState('MOUNT');
+
     useEffect(() => {
-        if(searchName.length > 2){
+        if(searchName.length > 1 && searchName != 'MOUNT'){
             console.log(`search name ${searchName}`);
             //searchEntry(searchName);
             getExpenses(searchName);
         }
         else if(searchName.length == 0){
-            console.log(`search all`);
+            console.log(`search all ${searchName}`);
             getExpenses(searchName);
         }
     }, [searchName])

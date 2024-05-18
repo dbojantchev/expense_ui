@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {Form, InputNumber, Input, Button, Modal, Table, Space, DatePicker} from 'antd';
+import {InputNumber, Input, Button, Modal, Table, Space, Dropdown} from 'antd';
 import './styles.css';
 import InputComponent from './InputComponent'
 import SearchComponent from './SearchComponent'
@@ -17,17 +17,28 @@ function TableComponent() {
     //const isEditing = (record) => record.key === editingKey;
     const [selectedRow, setSelectedRow] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    //const [searchVal, setSearchVal] = useState('');
+    const [searchVal, setSearchVal] = useState('NOSEARCH');
+    const noSearch =  'NOSEARCH';
     const [suggestions, setSuggestions] = useState([]);
-    const [sortCol, setSortCol] = useState('name');
+    const [sortCol, setSortCol] = useState('id');
     const [sortDir, setSortDir] = useState('asc');
-    const [pageNum, setPageNum] = useState(1);
-    const [pageSize, setPageSize] = useState(PAGE_SIZE);
+    //const [pageNum, setPageNum] = useState(1);
+    //const [pageSize, setPageSize] = useState(PAGE_SIZE);
+    const [loading, setLoading] = useState(false);
+    const [tableParams, setTableParams] = useState({
+        pagination: {
+            current: 1,
+            pageSize: 10,
+        },
+    });
 
     //hook below used to update the database
     useEffect(() => {
-        getExpenses();
-    }, [])
+        console.log(`get at TableComponent useEffect`);
+        //getExpenses(noSearch);
+        getExpenses(searchVal);
+
+    }, [tableParams.pagination?.current, tableParams.pagination?.pageSize, sortCol, sortDir])
 
     const onEditRow = (record) => {
         console.log(`show modal from  id ${record.id}`);
@@ -43,18 +54,25 @@ function TableComponent() {
             title: 'id',
             dataIndex: 'id',
             key: 'id',
-        }, {
+            sorter: (a, b) => a.id - b.id,
+            sortOrder: sortCol === 'id' ? sortDir : null,
+
+    }, {
             title: 'name',
             dataIndex: 'name',
             key: 'name',
-        }, {
+            sorter: true,
+
+    }, {
             title: 'amount',
             dataIndex: 'amount',
             key: 'amount',
-        },{
+            sorter: true,
+    },{
             title: 'create_date',
             dataIndex: 'create_date',
             key: 'create_date',
+            sorter: true,
         },{
             title: 'action',
             key: 'action',
@@ -75,10 +93,24 @@ function TableComponent() {
             )
         },
     ];
+
+    const handleTableChange = (pagination, filters, sorter) => {
+        setTableParams({
+                               pagination,
+                               filters,
+                               ...sorter,
+        });
+        setSortCol(sorter.columnKey);
+        setSortDir(sorter.order === 'ascend' ? 'asc' : 'desc');
+    }
+
     //get request for getting entire table
     const getExpenses = (searchName) => {
+        setSearchVal(searchName);
+        setLoading(true);
+        console.log(`get search name ${searchName}`);
         fetch(
-            `/api/expense?q=proxy&searchVal=${searchName}&sortCol=${sortCol}&sortDir=${sortDir}&pageNum=${pageNum}&pageSize=${pageSize}`,
+            `/api/expense?q=proxy&searchVal=${searchName}&sortCol=${sortCol}&sortDir=${sortDir}&pageNum=${tableParams.pagination?.current}&pageSize=${tableParams.pagination?.pageSize}`,
             {
                 headers: {
                     'Content-Type': 'application/json'
@@ -87,10 +119,22 @@ function TableComponent() {
         )
         .then(resp => {
             resp.json().then((data) => {
-                data.forEach((entry) => {
+                //console.log(`DATA`);
+                //console.log(data.rows);
+                //console.log(` count ${data.totalCount}`);
+
+                data.rows.forEach((entry) => {
                     entry.create_date = new Date(entry.create_date).toISOString().slice(0, 10);
                 });
-                setExpenses(data);
+                setExpenses(data.rows);
+                setLoading(false);
+                setTableParams({
+                    ...tableParams,
+                    pagination: {
+                        ...tableParams.pagination,
+                        total: data.totalCount,
+                    },
+                });
             });
         })
             .catch(err => {
@@ -99,8 +143,6 @@ function TableComponent() {
             });
     }
 
-
-
     //get request for search suggestions
     const searchEntry = (searchName) => {
         console.log(`search name ${searchName}`);
@@ -108,7 +150,7 @@ function TableComponent() {
         //console.log(`search term ${searchVal}`);
 
         fetch(
-            `/api/expense?q=proxy&searchVal=${searchName}&sortCol=${sortCol}&sortDir=${sortDir}&pageNum=${pageNum}&pageSize=${pageSize}`,
+            `/api/expense?q=proxy&searchVal=${searchName}&sortCol=${sortCol}&sortDir=${sortDir}&pageNum=${tableParams.pagination?.current}&pageSize=${tableParams.pagination?.pageSize}`,
             {
                 headers: {
                     'Content-Type': 'application/json'
@@ -147,7 +189,7 @@ function TableComponent() {
             (res) => res.json()
         ).then((data) => {
                 console.log('Success:', data);
-                getExpenses();
+                getExpenses(noSearch);
             }
         ).catch(err => {
                     console.log('======failure=======')
@@ -158,13 +200,8 @@ function TableComponent() {
     const deleteRow = async (id) => {
         console.log(`id for delete request ${id}`)
         await fetch(`/api/expense/${id}`, { method: 'DELETE' });
-        getExpenses();
+        getExpenses(noSearch);
     }
-
-    /*const returnExpenseIndex = (id) => {
-        const index = expenses.findIndex((ex) => ex.id === id);
-        return index;
-    }*/
 
     const editRow = (id, newName, newAmount, newDate) => {
         //const index = returnExpenseIndex(id);
@@ -184,7 +221,7 @@ function TableComponent() {
             `api/expense/${id}`,
             requestOptions
         ).then(() => {
-            getExpenses();
+            getExpenses(noSearch);
         }).catch(err => {
             console.log('======failure=======')
             console.log(err)
@@ -194,7 +231,7 @@ function TableComponent() {
 
     return (
         <>
-            <SearchComponent searchEntry = {searchEntry}
+            <SearchComponent //searchEntry = {searchEntry}
                              suggestions = {suggestions}
                              getExpenses = {getExpenses}
             />
@@ -204,6 +241,10 @@ function TableComponent() {
                    dataSource={expenses}
                    columns = {columns}
                    bordered
+                   pagination={tableParams.pagination}
+                   loading={loading}
+                   onChange={handleTableChange}
+
             />
             <ModalComponent
                 isEditModalOpen={isEditModalOpen}

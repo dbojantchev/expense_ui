@@ -3,8 +3,8 @@ import './styles.css';
 
 function Index() {
     return (
-        <div>
-            <h1>Expense Tracker 2022</h1>
+        <div className="header">
+            <h1 className= "h1">Expense Tracker 2024</h1>
         </div>
     );
 }

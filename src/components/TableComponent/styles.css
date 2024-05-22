@@ -1,1 +1,15 @@
+.input-search-group{
+    display: flex;
+    flex-direction: row;
+    position: sticky;
+    background-color: #61dafb;
+}
+
+.Input{
+    flex-grow: 5;
+}
+
+.Search{
+    flex-grow: 1;
+}
 

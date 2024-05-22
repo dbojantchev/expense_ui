@@ -27,7 +27,7 @@ function SearchComponent({searchEntry, suggestions, getExpenses}) {
                     }))}
                     //onSelect={(value, option) => {getExpenses(option.suggestion.name)}}
                 >
-                <Input  placeholder="Search by name"
+                <Input id="search" placeholder="Search by name"
                         value={searchName}
                         onChange={(e) => {
                             setSearchName(e.target.value);

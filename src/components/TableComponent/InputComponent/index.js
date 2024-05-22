@@ -1,47 +1,43 @@
 import React, { useEffect, useState } from 'react'
+import {Input, Button} from 'antd';
 import './styles.css';
 
 function InputComponent({addExpense}) {
-    const [name, setName] = useState("")
-    const [amount, setAmount] = useState(0)
-    const [date, setDate] = useState("")
-    const [errorMessage, setErrorMessage] = useState('')
+    const [name, setName] = useState("");
+    const [amount, setAmount] = useState(0);
+    const [date, setDate] = useState("");
+    const [errorMessage, setErrorMessage] = useState('');
+    const [reloaded, setReloaded] = useState(true);
 
     useEffect(() => {
-       //console.log("Checking name:");
-
-       (typeof amount !== 'number' || amount < 0) ?
-            setErrorMessage('Please enter a positive number for amount!')
-            : setAmount(amount)
-
-
-       !name ? setErrorMessage('Name cannot be Empty') : setName(name)
+        //checking for valid input
+        //console.log("Checking name:");
+        if(reloaded){
+            setReloaded(false);
+        }else{
+            if(name.length == 0){
+                setErrorMessage('Name cannot be Empty');
+            }else{
+                setErrorMessage('')
+                setName(name);
+            }
+        }
+        amount < 0 ? setErrorMessage('Please enter a positive number for amount!') : setAmount(amount);
     }, [name, amount])
-
-    /*const checkAmount = (amount) =>{
-        (typeof amount !== 'number' || amount < 0) ?
-            setErrorMessage('Please enter a positive number for amount!')
-            : setAmount(amount)
-    }
-
-    const checkEmpty = (name) => {
-        console.log("Checking name:" + name)
-         !name ? setErrorMessage('Name cannot be Empty') : setName(name)
-    }*/
 
     return (
         <>
            <div className={"input-group"}>
                <span className={"column-name"}>Name:</span>
-                <input type="text" value={name}
+                <Input type="text" value={name}
                        onChange={(e) => setName(e.target.value)}/>
                <span className={"column-name"}>Amount:</span>
-                <input type="number" id="amount" value={amount}
+                <Input type="number" id="amount" value={amount}
                        onChange={(e) => setAmount(e.target.value)}/>
                <span className={"column-name"}>Date:</span>
-                <input type="date" id="date" value="add" value={date}
+                <Input type="date" id="date" value="add" value={date}
                        onChange={(e) => setDate(e.target.value)}/>
-                <button onClick={() => addExpense({name, amount, date})}>Add</button>
+                <button className="add-button" disabled={errorMessage.length > 0} onClick={() => addExpense({name, amount, date})}>Add Entry!</button>
                {errorMessage && <div className="error"> {errorMessage} </div>}
            </div>
         </>

@@ -1,9 +1,12 @@
-.auto-complete{
-    width: 50%;
+.search-group{
+    display: flex;
+    border-radius: 7px;
+    margin-left: 500px;
+    width: 200px;
 }
 
-.search-group{
-    width:100%;
-    background-color: navajowhite;
-    border-radius: 7px;
+#search:hover{
 }
+
+
+

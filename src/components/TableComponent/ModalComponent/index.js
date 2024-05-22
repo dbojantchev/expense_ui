@@ -28,7 +28,7 @@ function ModalComponent({isEditModalOpen, handleEdit, selectedRow, handleCancel}
                     </>
                 )}
             >
-                <div className={'form-div'}>
+                <div className={'input-group'}>
                     <label>Name</label>
                     <Input type= "text"
                            placeholder="Enter name"

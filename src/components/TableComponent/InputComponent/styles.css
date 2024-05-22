@@ -1,10 +1,30 @@
 .error{
     color: red;
-    font-style: italic;
-    font-size: 22px;
+    font-size: 12px;
 }
 
 .input-group{
-    background-color: grey;
-    border-radius: 7px;
+    display: flex;
 }
+
+.column-name{
+    margin: 5px;
+    flex-grow: 1;
+}
+
+
+.add-button{
+    font-family: Helvetica;
+    margin-left: 10px;
+    border-radius: 0.5rem;
+    width: 100px;
+    flex-grow: 4;
+}
+
+.add-button:hover{
+    background-image: linear-gradient(30deg, blueviolet, aquamarine);
+    animation: gradient 0.3s ease infinite;
+    flex-grow: 5;
+    transition: margin-left 2s ease-in-out;
+}
+

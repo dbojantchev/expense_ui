@@ -10,18 +10,17 @@ import ModalComponent from "./ModalComponent";
 function TableComponent() {
     const PAGE_SIZE=5;
     //initial expense array of  objects is empty, denoted by []
-    //const [form] = Form.useForm();
-    //const FormItem = Form.Item;
     const [expenses, setExpenses] = useState([]);
-
     //const isEditing = (record) => record.key === editingKey;
     const [selectedRow, setSelectedRow] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [searchVal, setSearchVal] = useState('NOSEARCH');
+    //const [searchVal, setSearchVal] = useState('NOSEARCH');
+    const [searchVal, setSearchVal] = useState('');//UNDEFINED INITIAL SEARCH VALUE
+
     const noSearch =  'NOSEARCH';
     const [suggestions, setSuggestions] = useState([]);
     const [sortCol, setSortCol] = useState('id');
-    const [sortDir, setSortDir] = useState('asc');
+    const [sortDir, setSortDir] = useState('desc');
     //const [pageNum, setPageNum] = useState(1);
     //const [pageSize, setPageSize] = useState(PAGE_SIZE);
     const [loading, setLoading] = useState(false);
@@ -30,15 +29,18 @@ function TableComponent() {
             current: 1,
             pageSize: 10,
         },
+        columnKey: 'id',
+        order: 'descend',
     });
 
     //hook below used to update the database
     useEffect(() => {
+        console.log(`UseEffect TableParam sort order ${tableParams.order} column key ${tableParams.columnKey}`);
         console.log(`get at TableComponent useEffect`);
         //getExpenses(noSearch);
         getExpenses(searchVal);
 
-    }, [tableParams.pagination?.current, tableParams.pagination?.pageSize, sortCol, sortDir])
+    }, [tableParams.pagination?.current, tableParams.pagination?.pageSize, tableParams.order/*, sortCol, sortDir*/])
 
     const onEditRow = (record) => {
         console.log(`show modal from  id ${record.id}`);
@@ -55,19 +57,17 @@ function TableComponent() {
             dataIndex: 'id',
             key: 'id',
             sorter: (a, b) => a.id - b.id,
-            sortOrder: sortCol === 'id' ? sortDir : null,
-
     }, {
             title: 'name',
             dataIndex: 'name',
             key: 'name',
-            sorter: true,
+            sorter: (a, b) => a.name.length - b.name.length,
 
     }, {
             title: 'amount',
             dataIndex: 'amount',
             key: 'amount',
-            sorter: true,
+            sorter: (a, b) => a.amount - b.amount,
     },{
             title: 'create_date',
             dataIndex: 'create_date',
@@ -95,13 +95,26 @@ function TableComponent() {
     ];
 
     const handleTableChange = (pagination, filters, sorter) => {
-        setTableParams({
-                               pagination,
-                               filters,
-                               ...sorter,
-        });
-        setSortCol(sorter.columnKey);
-        setSortDir(sorter.order === 'ascend' ? 'asc' : 'desc');
+        //console.log(`handleTabChange TableParam sort order ${tableParams.order} column key ${tableParams.columnKey}`);
+        console.log(`1 DIR ${sortDir} SORT.ORDER ${sorter.order}`);
+        //setSortCol(sorter.columnKey);
+        //sorter.order = 'ascend' ? 'descend' : 'ascend';
+        //console.log(`2 DIR ${sortDir} SORT.ORDER ${sorter.order}`);
+        //setSortDir(sorter.order === 'ascend' ? 'asc' : 'desc');
+        console.log(`3 DIR ${sortDir} SORT.ORDER ${sorter.order}`);
+        if(sorter.order === undefined || sorter.columnKey === undefined){//if sorter is undefined because just pagination has been called
+            sorter.columnKey = tableParams.columnKey
+            sorter.order = tableParams.order;
+            setTableParams({
+                pagination,
+                ...sorter,
+            });
+        }else{
+            setTableParams({
+                pagination,
+                ...sorter,
+            });
+        }
     }
 
     //get request for getting entire table
@@ -110,7 +123,7 @@ function TableComponent() {
         setLoading(true);
         console.log(`get search name ${searchName}`);
         fetch(
-            `/api/expense?q=proxy&searchVal=${searchName}&sortCol=${sortCol}&sortDir=${sortDir}&pageNum=${tableParams.pagination?.current}&pageSize=${tableParams.pagination?.pageSize}`,
+            `/api/expense?q=proxy&searchVal=${searchName}&sortCol=${tableParams.columnKey}&sortDir=${tableParams.order}&pageNum=${tableParams.pagination?.current}&pageSize=${tableParams.pagination?.pageSize}`,
             {
                 headers: {
                     'Content-Type': 'application/json'
@@ -144,7 +157,7 @@ function TableComponent() {
     }
 
     //get request for search suggestions
-    const searchEntry = (searchName) => {
+    /*const searchEntry = (searchName) => {
         console.log(`search name ${searchName}`);
         //setSearchVal(searchName);
         //console.log(`search term ${searchVal}`);
@@ -167,7 +180,7 @@ function TableComponent() {
                 console.log('======failure=======');
                 console.log(err);
             });
-    };
+    };*/
 
     const addExpense = (rec) => {
         /*const newExpenseList = [...expenses]
@@ -230,12 +243,13 @@ function TableComponent() {
     }
 
     return (
-        <>
-            <SearchComponent //searchEntry = {searchEntry}
-                             suggestions = {suggestions}
-                             getExpenses = {getExpenses}
-            />
-            <InputComponent addExpense={addExpense}/>
+        <>  <div className= "input-search-group">
+                <InputComponent classname="Input" addExpense={addExpense}/>
+                <SearchComponent classname="Search" //searchEntry = {searchEntry}
+                    suggestions = {suggestions}
+                    getExpenses = {getExpenses}
+                />
+            </div>
             <Table className = "antDTable"
                    rowKey= "id"
                    dataSource={expenses}
